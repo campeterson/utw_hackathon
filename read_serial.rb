@@ -30,6 +30,16 @@ OBJECTS = {
   person: ["p00"]
 }
 
+def parse_data(data)
+  unless data.nil?
+    tmp = data.split('/')
+
+    return tmp[0], tmp[1], tmp[2]
+  else
+    return nil, nil, nil
+  end
+end
+
 def build_topic (object_type, object_id, event_type)
   "home/42/#{object_type}/#{object_id}/#{event_type}"
 end
@@ -43,34 +53,14 @@ def get_object_type(key)
 end
 
 def send_data(c, data)
-  parsed_data = parse_data(data)
-  if parsed_data
-    event_type = parsed_data.keys.first
-    message = parsed_data[event_type]
-    object_type = get_object_type(event_type.to_sym)
+  object_id, event_type, message = parse_data(data)
+  if object_id && event_type && message
+    object_type = get_object_type(event_type)
     if object_type
-      sample = OBJECTS[object_type.to_sym].sample
-      sample = if(object_type == :door)
-                 "r02"
-               else
-                 OBJECTS[object_type.to_sym].sample
-               end
-      if object_type
-        topic = build_topic(object_type, sample, event_type)
-        puts topic
-        c.publish(topic, message.to_s.downcase)
-        puts "Sending data to: #{topic} | #{message}"
-      end
+      topic = build_topic(object_type, object_id, event_type)
+      c.publish(topic, message.to_s.downcase)
+      puts "Sending data to: #{topic} | #{message}"
     end
-  else
-    puts "parse died"
-  end
-end
-
-def parse_data(data)
-  unless data.nil?
-    tmp = data.split('|')
-    {tmp[0] => tmp[1]}
   else
     puts "parse died"
   end

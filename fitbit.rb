@@ -55,7 +55,7 @@ MQTT::Client.connect(conn_opts) do |c|
     else
       sample_fitbit(c, client)
       puts Time.now
-      sleep 10
+      sleep 60
     end
   end
 end
