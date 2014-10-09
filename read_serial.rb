@@ -35,9 +35,9 @@ def build_topic (object_type, object_id, event_type)
 end
 
 def get_object_type(key)
-  if [:temp, :light, :door].include?(key.to_sym)
+  if [:temp, :light].include?(key.to_sym)
     :room
-  elsif [:upright, :activity].include?(key.to_sym)
+  elsif [:upright, :activity, :pills].include?(key.to_sym)
     :person
   end
 end
@@ -50,10 +50,15 @@ def send_data(c, data)
     object_type = get_object_type(event_type.to_sym)
     if object_type
       sample = OBJECTS[object_type.to_sym].sample
+      sample = if(object_type == :door)
+                 "r02"
+               else
+                 OBJECTS[object_type.to_sym].sample
+               end
       if object_type
         topic = build_topic(object_type, sample, event_type)
         puts topic
-        c.publish(topic, message)
+        c.publish(topic, message.to_s.downcase)
         puts "Sending data to: #{topic} | #{message}"
       end
     end
@@ -71,7 +76,7 @@ def parse_data(data)
   end
 end
 
-#sp = SerialPort.new(port_str, baud_rate, data_bits, stop_bits, parity)
+sp = SerialPort.new(port_str, baud_rate, data_bits, stop_bits, parity)
 
 # just read forever
 MQTT::Client.connect(conn_opts) do |c|

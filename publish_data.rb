@@ -17,19 +17,10 @@ def build_topic (object_type, object_id, event_type)
 end
 
 def sample_sensors(c)
-  #message = [77, 44, 55, 99, 42].sample
   message = [TRUE, FALSE].sample
   topic = build_topic(:room, ROOMS.sample, :light)
   c.publish(topic, message)
   puts "Sending data to: #{topic} | #{message}"
-end
-
-def analog_to_C(analog)
-  (((0.75) - ((analog/1023).to_f * 4.5)) / 0.01) + 25
-end
-
-def c_to_F(celsius)
-  (celsius * 9)/5 + 32
 end
 
 SIGNAL_QUEUE = []
